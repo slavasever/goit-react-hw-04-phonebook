@@ -1,66 +1,61 @@
-import React, { Component } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Section from 'components/Section';
 import ContactForm from './components/ContactForm';
 import ContactsList from './components/ContactsList';
 import Filter from './components/Filter';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+function App() {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
+  // const isFirstRender = useRef(true);
 
-  componentDidMount() {
+  useEffect(() => {
     const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
-
+    // console.log('читаємо дані');
     if (parsedContacts) {
-      this.setState({
-        contacts: parsedContacts,
-      });
+      setContacts(parsedContacts);
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  useEffect(() => {
+    // варіант 1
+    // if (isFirstRender.current) {
+    //   isFirstRender.current = false;
+    //   return;
+    // }
+    // варіант 2
+    if (contacts.length === 0) {
+      return;
     }
-  }
 
-  addContact = contact => {
-    const { contacts } = this.state;
+    // console.log('записуємо дані');
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const addContact = contact => {
     const isContactInList = contacts.some(
       item => item.name.toLocaleLowerCase() === contact.name.toLocaleLowerCase()
     );
 
     isContactInList
       ? alert(`${contact.name} is already in contacts!`)
-      : this.setState(prevState => ({
-          contacts: [contact, ...prevState.contacts],
-        }));
+      : setContacts(contacts => [contact, ...contacts]);
   };
 
-  deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+  const deleteContact = id => {
+    setContacts(contacts => contacts.filter(contact => contact.id !== id));
   };
 
-  filterHandler = event => {
-    const { name, value } = event.currentTarget;
-
-    this.setState({
-      [name]: value,
-    });
+  const filterHandler = event => {
+    const { value } = event.currentTarget;
+    setFilter(value);
   };
 
-  filterReset = () => {
-    this.setState({
-      filter: '',
-    });
+  const filterReset = () => {
+    setFilter('');
   };
 
-  contactFiltration = () => {
-    const { contacts, filter } = this.state;
+  const contactFiltration = () => {
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter(contact =>
@@ -68,29 +63,24 @@ class App extends Component {
     );
   };
 
-  render() {
-    const { filter } = this.state;
-    const filteredContacts = this.contactFiltration();
-
-    return (
-      <>
-        <Section title="Phonebook">
-          <ContactForm onSubmit={this.addContact} />
-        </Section>
-        <Section title="Contacts">
-          <Filter
-            filter={filter}
-            onChange={this.filterHandler}
-            onClick={this.filterReset}
-          />
-          <ContactsList
-            contacts={filteredContacts}
-            clickHandler={this.deleteContact}
-          ></ContactsList>
-        </Section>
-      </>
-    );
-  }
+  return (
+    <>
+      <Section title="Phonebook">
+        <ContactForm onSubmit={addContact} />
+      </Section>
+      <Section title="Contacts">
+        <Filter
+          filter={filter}
+          onChange={filterHandler}
+          onClick={filterReset}
+        />
+        <ContactsList
+          contacts={contactFiltration()}
+          clickHandler={deleteContact}
+        ></ContactsList>
+      </Section>
+    </>
+  );
 }
 
 export default App;
