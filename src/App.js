@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Section from 'components/Section';
 import ContactForm from './components/ContactForm';
 import ContactsList from './components/ContactsList';
@@ -7,24 +7,20 @@ import Filter from './components/Filter';
 function App() {
   const [contacts, setContacts] = useState([]);
   const [filter, setFilter] = useState('');
-  // const isFirstRender = useRef(true);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
     // console.log('читаємо дані');
+    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
+
     if (parsedContacts) {
       setContacts(parsedContacts);
     }
   }, []);
 
   useEffect(() => {
-    // варіант 1
-    // if (isFirstRender.current) {
-    //   isFirstRender.current = false;
-    //   return;
-    // }
-    // варіант 2
-    if (contacts.length === 0) {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
     }
 
