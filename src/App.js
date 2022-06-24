@@ -5,18 +5,19 @@ import ContactsList from './components/ContactsList';
 import Filter from './components/Filter';
 
 function App() {
-  const [contacts, setContacts] = useState([]);
+  const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
+  const [contacts, setContacts] = useState(parsedContacts ?? []);
   const [filter, setFilter] = useState('');
   const isFirstRender = useRef(true);
 
-  useEffect(() => {
-    // console.log('читаємо дані');
-    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
+  // useEffect(() => {
+  //   // console.log('читаємо дані');
+  //   const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
 
-    if (parsedContacts) {
-      setContacts(parsedContacts);
-    }
-  }, []);
+  //   if (parsedContacts) {
+  //     setContacts(parsedContacts);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (isFirstRender.current) {
